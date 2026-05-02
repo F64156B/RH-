@@ -4,16 +4,31 @@ import { BrowserRouter } from 'react-router-dom';
 import App from './App';
 import { AuthProvider } from './lib/auth';
 import { ToastProvider } from './components/ui/Toast';
+import { ErrorBoundary } from './components/ErrorBoundary';
+import { SetupNotice } from './components/SetupNotice';
+import { isFirebaseConfigured } from './lib/firebase';
 import './index.css';
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
-    <BrowserRouter>
-      <ToastProvider>
-        <AuthProvider>
-          <App />
-        </AuthProvider>
-      </ToastProvider>
-    </BrowserRouter>
-  </React.StrictMode>,
-);
+const root = ReactDOM.createRoot(document.getElementById('root')!);
+
+if (!isFirebaseConfigured) {
+  root.render(
+    <React.StrictMode>
+      <SetupNotice />
+    </React.StrictMode>,
+  );
+} else {
+  root.render(
+    <React.StrictMode>
+      <ErrorBoundary>
+        <BrowserRouter>
+          <ToastProvider>
+            <AuthProvider>
+              <App />
+            </AuthProvider>
+          </ToastProvider>
+        </BrowserRouter>
+      </ErrorBoundary>
+    </React.StrictMode>,
+  );
+}

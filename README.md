@@ -23,6 +23,16 @@ npm run dev
 `VITE_FIREBASE_*` — configuração do projeto Firebase.
 `VITE_GEMINI_API_KEY` — chave do Google Generative AI.
 
+> Sem as envs definidas, a aplicação renderiza uma tela de **Configuração necessária**
+> em vez de quebrar — útil para previews em Vercel/Netlify/GitHub Pages sem credenciais.
+
+## Deploy
+
+- **Vercel / Netlify**: defina as `VITE_*` como variáveis de ambiente do projeto.
+  Os arquivos `vercel.json` e `netlify.toml` já configuram o fallback SPA.
+- **GitHub Pages**: o build usa `base: './'` (paths relativos) e `public/404.html`
+  redireciona deep-links para a raiz, deixando o React Router resolver o restante.
+
 ## Permissões
 
 - **Master / RH (admin):** `pedro.souza04101993@gmail.com` — acesso completo (Admin, Kanban, Estratégico).

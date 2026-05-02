@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <title>BDG · Redirecionando…</title>
+    <script>
+      // Em hosts estáticos (GitHub Pages), redireciona qualquer 404 para a raiz da app.
+      // O React Router cuida do resto após o boot.
+      var segs = window.location.pathname.split('/').filter(Boolean);
+      var base = segs.length > 0 ? '/' + segs[0] + '/' : '/';
+      window.location.replace(base);
+    </script>
+  </head>
+  <body></body>
+</html>
