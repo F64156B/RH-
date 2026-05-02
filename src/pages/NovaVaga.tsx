@@ -10,6 +10,7 @@ import { generateJobScope } from '../lib/gemini';
 import type { Area, Cargo, Colaborador, Marca, MatrizRegra, Unidade, Vaga } from '../lib/types';
 import { resolveApprover } from '../lib/approvals';
 import { useAuth } from '../lib/auth';
+import { useToast } from '../components/ui/Toast';
 
 const STEPS = [
   { key: 'contexto', label: 'Contexto' },
@@ -20,6 +21,7 @@ const STEPS = [
 
 export function NovaVagaPage() {
   const { user } = useAuth();
+  const toast = useToast();
   const navigate = useNavigate();
   const [step, setStep] = useState(0);
   const [marcas, setMarcas] = useState<(Marca & { id: string })[]>([]);
@@ -89,7 +91,10 @@ export function NovaVagaPage() {
   };
 
   const handleAutocomplete = async () => {
-    if (!form.cargo || !form.area) return alert('Informe Cargo e Área primeiro.');
+    if (!form.cargo || !form.area) {
+      toast.warning('Informe Cargo e Área antes de gerar.');
+      return;
+    }
     setGenerating(true);
     try {
       const text = await generateJobScope({
@@ -100,8 +105,9 @@ export function NovaVagaPage() {
         motivo: form.motivo,
       });
       update('descricao', text);
+      toast.success('Descrição gerada com IA.');
     } catch (e) {
-      alert((e as Error).message);
+      toast.error('Falha ao gerar descrição.', (e as Error).message);
     } finally {
       setGenerating(false);
     }
@@ -137,7 +143,10 @@ export function NovaVagaPage() {
         slaDias: 30,
       };
       const ref = await add('vagas', payload);
+      toast.success('Vaga criada.', approver?.approverEmail ? `Aprovador: ${approver.approverEmail}` : 'Aguardando direcionamento.');
       navigate(`/vagas/${ref.id}`);
+    } catch (e) {
+      toast.error('Não foi possível criar a vaga.', (e as Error).message);
     } finally {
       setSaving(false);
     }

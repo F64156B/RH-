@@ -9,9 +9,11 @@ import { EmptyState } from '../components/ui/EmptyState';
 import { listen, update } from '../lib/firestore';
 import type { Vaga } from '../lib/types';
 import { useAuth } from '../lib/auth';
+import { useToast } from '../components/ui/Toast';
 
 export function AprovacoesPage() {
   const { user, isAdmin } = useAuth();
+  const toast = useToast();
   const [vagas, setVagas] = useState<(Vaga & { id: string })[]>([]);
 
   useEffect(() => listen<Vaga>('vagas', setVagas), []);
@@ -27,11 +29,16 @@ export function AprovacoesPage() {
   const decide = async (v: Vaga & { id: string }, ok: boolean) => {
     const note = ok ? '' : prompt('Justificativa da reprovação:') ?? '';
     if (!ok && !note) return;
-    await update<Vaga>('vagas', v.id, {
-      status: ok ? 'aprovada' : 'cancelada',
-      approvalDecidedAt: Date.now(),
-      approvalNote: note || undefined,
-    });
+    try {
+      await update<Vaga>('vagas', v.id, {
+        status: ok ? 'aprovada' : 'cancelada',
+        approvalDecidedAt: Date.now(),
+        approvalNote: note || undefined,
+      });
+      ok ? toast.success(`Vaga aprovada: ${v.cargo}`) : toast.info(`Vaga reprovada: ${v.cargo}`);
+    } catch (e) {
+      toast.error('Não foi possível registrar a decisão.', (e as Error).message);
+    }
   };
 
   return (

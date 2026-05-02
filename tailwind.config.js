@@ -8,7 +8,8 @@ export default {
         pearl: '#F7F7F5',
         pearlSoft: '#FCFCFC',
         slateText: '#3A3F47',
-        silver: '#9CA3AF',
+        silver: '#6B7280',
+        silverSoft: '#9CA3AF',
         mist: '#E5E7EB',
         bordeaux: {
           DEFAULT: '#7B1E1E',
