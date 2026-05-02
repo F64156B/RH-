@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, KanbanSquare } from 'lucide-react';
+import { Link, useParams } from 'react-router-dom';
+import { KanbanSquare } from 'lucide-react';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { update } from '../lib/firestore';
 import type { Vaga, VagaStatus } from '../lib/types';
 import { PageHeader } from '../components/PageHeader';
+import { Breadcrumbs } from '../components/Breadcrumbs';
 import { Card, CardBody } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Badge } from '../components/ui/Badge';
@@ -15,7 +16,6 @@ import { useAuth } from '../lib/auth';
 export function VagaDetailPage() {
   const { id } = useParams();
   const { isAdmin } = useAuth();
-  const navigate = useNavigate();
   const [vaga, setVaga] = useState<(Vaga & { id: string }) | null>(null);
 
   useEffect(() => {
@@ -34,9 +34,7 @@ export function VagaDetailPage() {
 
   return (
     <div>
-      <button onClick={() => navigate(-1)} className="mb-3 inline-flex items-center gap-1 text-xs text-silver hover:text-graphite">
-        <ArrowLeft size={12} /> Voltar
-      </button>
+      <Breadcrumbs items={[{ label: 'Vagas', to: '/vagas' }, { label: vaga.cargo }]} />
       <PageHeader
         title={vaga.cargo}
         subtitle={`${vaga.area} · ${vaga.unidade} · ${vaga.marca}`}
@@ -88,6 +86,23 @@ export function VagaDetailPage() {
                 <div className="text-[11px] uppercase tracking-wider text-silver">Aberta em</div>
                 <div className="text-slateText tabular">{new Date(vaga.createdAt).toLocaleDateString('pt-BR')}</div>
               </div>
+              {vaga.approverEmail && (
+                <div>
+                  <div className="text-[11px] uppercase tracking-wider text-silver">Aprovador</div>
+                  <div className="text-slateText">{vaga.approverEmail}</div>
+                  {vaga.approvalDecidedAt && (
+                    <div className="text-[11px] text-silver tabular">
+                      Decidido em {new Date(vaga.approvalDecidedAt).toLocaleDateString('pt-BR')}
+                    </div>
+                  )}
+                </div>
+              )}
+              {vaga.approvalNote && (
+                <div>
+                  <div className="text-[11px] uppercase tracking-wider text-silver">Nota da decisão</div>
+                  <div className="text-slateText">{vaga.approvalNote}</div>
+                </div>
+              )}
               {vaga.metricaJustificativa && (
                 <div>
                   <div className="text-[11px] uppercase tracking-wider text-silver">Justificativa</div>

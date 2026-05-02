@@ -19,6 +19,36 @@ body {
 
 .tabular { font-variant-numeric: tabular-nums; }
 
+/* Acessibilidade — focus-visible padronizado */
+:focus { outline: none; }
+:focus-visible {
+  outline: 2px solid #0E1116;
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+/* Em superfícies escuras (sidebar/header), inverte */
+.dark-surface :focus-visible,
+[data-surface="dark"] :focus-visible {
+  outline-color: #FCFCFC;
+}
+/* Botões e links já têm border-radius próprio — usar ring no lugar */
+button:focus-visible,
+a:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(14,17,22,0.95), 0 0 0 4px rgba(14,17,22,0.15);
+}
+[data-surface="dark"] button:focus-visible,
+[data-surface="dark"] a:focus-visible {
+  box-shadow: 0 0 0 2px rgba(252,252,252,0.95), 0 0 0 4px rgba(252,252,252,0.25);
+}
+/* Inputs preservam ring sutil já existente */
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  box-shadow: none;
+  outline: none;
+}
+
 /* Subtle scrollbars */
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-thumb { background: #E5E7EB; border-radius: 8px; }

@@ -7,6 +7,7 @@ import { Modal } from './ui/Modal';
 import { Field, Input } from './ui/Input';
 import { add, bulkInsert, listen, remove, update } from '../lib/firestore';
 import { mapRows, readSheet } from '../lib/xlsx-import';
+import { useToast } from './ui/Toast';
 
 export type ColumnDef = {
   key: string;
@@ -32,6 +33,7 @@ export function CrudTable({
   const [form, setForm] = useState<Record<string, string>>({});
   const [importing, setImporting] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  const toast = useToast();
 
   useEffect(() => listen<any>(collectionName, setRows), [collectionName]);
 
@@ -50,9 +52,18 @@ export function CrudTable({
     columns.forEach((c) => {
       payload[c.key] = form[c.key] ?? '';
     });
-    if (editing) await update(collectionName, editing.id, payload);
-    else await add(collectionName, payload);
-    setOpen(false);
+    try {
+      if (editing) {
+        await update(collectionName, editing.id, payload);
+        toast.success('Registro atualizado.');
+      } else {
+        await add(collectionName, payload);
+        toast.success('Registro criado.');
+      }
+      setOpen(false);
+    } catch (e) {
+      toast.error('Não foi possível salvar.', (e as Error).message);
+    }
   };
   const del = async (id: string) => {
     if (confirm('Excluir registro?')) await remove(collectionName, id);
@@ -65,8 +76,9 @@ export function CrudTable({
       const data = await readSheet(file);
       const mapped = mapRows(data, excelMapping);
       await bulkInsert(collectionName, mapped);
+      toast.success('Importação concluída.', `${mapped.length} registros adicionados.`);
     } catch (e) {
-      alert('Falha ao importar: ' + (e as Error).message);
+      toast.error('Falha ao importar.', (e as Error).message);
     } finally {
       setImporting(false);
       if (fileRef.current) fileRef.current.value = '';
@@ -135,10 +147,18 @@ export function CrudTable({
                       </td>
                     ))}
                     <td className="px-5 py-3 text-right">
-                      <button onClick={() => startEdit(r)} className="text-silver hover:text-graphite mr-3">
+                      <button
+                        onClick={() => startEdit(r)}
+                        aria-label="Editar registro"
+                        className="text-silver hover:text-graphite mr-3 rounded p-1"
+                      >
                         <Pencil size={14} />
                       </button>
-                      <button onClick={() => del(r.id)} className="text-silver hover:text-danger">
+                      <button
+                        onClick={() => del(r.id)}
+                        aria-label="Excluir registro"
+                        className="text-silver hover:text-danger rounded p-1"
+                      >
                         <Trash2 size={14} />
                       </button>
                     </td>

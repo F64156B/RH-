@@ -111,14 +111,16 @@ export function KanbanPage() {
                         <button
                           onClick={() => advance(c, -1)}
                           disabled={c.stage === 'triagem'}
-                          className="text-silver hover:text-graphite disabled:opacity-30"
+                          aria-label="Voltar etapa"
+                          className="text-silver hover:text-graphite disabled:opacity-30 rounded p-1"
                         >
                           <ChevronLeft size={14} />
                         </button>
                         <button
                           onClick={() => advance(c, 1)}
                           disabled={c.stage === 'contratado'}
-                          className="text-silver hover:text-graphite disabled:opacity-30"
+                          aria-label="Avançar etapa"
+                          className="text-silver hover:text-graphite disabled:opacity-30 rounded p-1"
                         >
                           <ChevronRight size={14} />
                         </button>

@@ -1,8 +1,10 @@
-import { NavLink, Navigate, Route, Routes } from 'react-router-dom';
+import { NavLink, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { Bell, Building2, Layers, MapPin, ShieldCheck, UserCog, Users, Workflow } from 'lucide-react';
 import { PageHeader } from '../components/PageHeader';
+import { Breadcrumbs } from '../components/Breadcrumbs';
 import { CrudTable } from '../components/CrudTable';
 import { Card, CardBody } from '../components/ui/Card';
+import { MatrizPage } from './Matriz';
 
 const tabs = [
   { to: 'marcas', label: 'Marcas', icon: Building2 },
@@ -10,7 +12,7 @@ const tabs = [
   { to: 'areas', label: 'Áreas', icon: Layers },
   { to: 'cargos', label: 'Cargos', icon: Workflow },
   { to: 'colaboradores', label: 'Colaboradores', icon: Users },
-  { to: 'matriz', label: 'Matriz de Aprovação', icon: ShieldCheck, soon: true },
+  { to: 'matriz', label: 'Matriz de Aprovação', icon: ShieldCheck },
   { to: 'notificacoes', label: 'Notificações', icon: Bell, soon: true },
   { to: 'permissoes', label: 'Permissões', icon: UserCog, soon: true },
 ];
@@ -27,9 +29,17 @@ function Placeholder({ title }: { title: string }) {
 }
 
 export function AdminPage() {
+  const location = useLocation();
+  const current = tabs.find((t) => location.pathname.endsWith(`/admin/${t.to}`));
   return (
     <div>
-      <PageHeader title="Administrativo" subtitle="Configurações estruturais do grupo." />
+      <Breadcrumbs
+        items={[
+          { label: 'Configurações', to: '/admin' },
+          ...(current ? [{ label: current.label }] : []),
+        ]}
+      />
+      <PageHeader title="Configurações" subtitle="Cadastros estruturais do grupo." />
       <div className="grid grid-cols-12 gap-6">
         <aside className="col-span-12 md:col-span-3">
           <Card>
@@ -138,7 +148,7 @@ export function AdminPage() {
                 />
               }
             />
-            <Route path="matriz" element={<Placeholder title="Matriz de Aprovação" />} />
+            <Route path="matriz" element={<MatrizPage />} />
             <Route path="notificacoes" element={<Placeholder title="Notificações" />} />
             <Route path="permissoes" element={<Placeholder title="Permissões" />} />
           </Routes>

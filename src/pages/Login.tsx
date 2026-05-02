@@ -18,17 +18,17 @@ export function LoginPage() {
           <div className="h-9 w-9 rounded-md bg-bordeaux flex items-center justify-center font-bold">B</div>
           <div>
             <div className="font-semibold tracking-wide">Brasil Dealer Group</div>
-            <div className="text-[11px] uppercase tracking-[0.2em] text-silver">Recrutamento</div>
+            <div className="text-[11px] uppercase tracking-[0.2em] text-silverSoft">Recrutamento</div>
           </div>
         </div>
         <div className="space-y-3 max-w-md">
           <h2 className="text-3xl font-semibold tracking-tight">Excelência em gestão de vagas para marcas premium.</h2>
-          <p className="text-sm text-silver">
+          <p className="text-sm text-silverSoft">
             Plataforma corporativa de abertura, aprovação e triagem de vagas para mais de mil colaboradores em
             quarenta concessionárias de quinze marcas automotivas de luxo.
           </p>
         </div>
-        <div className="text-[11px] text-silver/60 tracking-wide">© {new Date().getFullYear()} BDG · Todos os direitos reservados.</div>
+        <div className="text-[11px] text-silverSoft/70 tracking-wide">© {new Date().getFullYear()} BDG · Todos os direitos reservados.</div>
       </div>
 
       <div className="flex w-full md:w-1/2 items-center justify-center bg-pearl p-8">

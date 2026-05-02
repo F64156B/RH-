@@ -1,0 +1,58 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    function isAdmin() {
+      return isSignedIn()
+        && request.auth.token.email != null
+        && request.auth.token.email.lower() == 'pedro.souza04101993@gmail.com';
+    }
+    function isOwner(resourceData) {
+      return isSignedIn()
+        && resourceData.requesterEmail != null
+        && request.auth.token.email != null
+        && resourceData.requesterEmail.lower() == request.auth.token.email.lower();
+    }
+    function isApprover(resourceData) {
+      return isSignedIn()
+        && resourceData.approverEmail != null
+        && request.auth.token.email != null
+        && resourceData.approverEmail.lower() == request.auth.token.email.lower();
+    }
+
+    // Cadastros administrativos: leitura por qualquer usuário autenticado,
+    // escrita exclusiva do admin master.
+    match /marcas/{id}        { allow read: if isSignedIn(); allow write: if isAdmin(); }
+    match /unidades/{id}      { allow read: if isSignedIn(); allow write: if isAdmin(); }
+    match /areas/{id}         { allow read: if isSignedIn(); allow write: if isAdmin(); }
+    match /cargos/{id}        { allow read: if isSignedIn(); allow write: if isAdmin(); }
+    match /colaboradores/{id} { allow read: if isSignedIn(); allow write: if isAdmin(); }
+    match /matriz_aprovacao/{id} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    // Vagas: solicitante cria/lê as próprias; admin tudo; aprovador lê quando designado.
+    match /vagas/{id} {
+      allow read: if isAdmin() || isOwner(resource.data) || isApprover(resource.data);
+      allow create: if isSignedIn()
+        && request.resource.data.requesterEmail.lower() == request.auth.token.email.lower()
+        && request.resource.data.status == 'pendente';
+      // Solicitante pode editar enquanto pendente; aprovador altera status; admin tudo.
+      allow update: if isAdmin()
+        || (isOwner(resource.data) && resource.data.status == 'pendente')
+        || (isApprover(resource.data)
+            && request.resource.data.diff(resource.data).affectedKeys()
+                .hasOnly(['status', 'approvalDecidedAt', 'approvalNote']));
+      allow delete: if isAdmin();
+    }
+
+    // Candidatos: somente admin RH.
+    match /candidatos/{id} {
+      allow read, write: if isAdmin();
+    }
+  }
+}
