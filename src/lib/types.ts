@@ -24,6 +24,12 @@ export type VagaStatus =
 
 export type Vaga = {
   id?: ID;
+  // Referenciais
+  marcaId?: ID;
+  unidadeId?: ID;
+  areaId?: ID;
+  cargoId?: ID;
+  // Denormalizados para listagem
   cargo: string;
   area: string;
   marca: string;
@@ -34,10 +40,27 @@ export type Vaga = {
   metricaJustificativa?: string;
   descricao: string;
   status: VagaStatus;
+  // Aprovação
+  approverEmail?: string;
+  approvalDecidedAt?: number;
+  approvalNote?: string;
+  // Solicitante / SLA
   requesterEmail: string;
   requesterName?: string;
   createdAt: number;
   slaDias?: number;
+};
+
+export type MatrizRegra = {
+  id?: ID;
+  // Quando areaId está vazio, vale para qualquer área da marca; idem cargoNivel.
+  marcaId?: ID;
+  marcaNome?: string;
+  areaId?: ID;
+  areaNome?: string;
+  cargoNivel?: string;
+  approverEmail: string;
+  approverNome?: string;
 };
 
 export type CandidatoStage =

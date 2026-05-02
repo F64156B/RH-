@@ -6,6 +6,7 @@ import {
   Settings,
   LogOut,
   Sparkles,
+  Inbox,
 } from 'lucide-react';
 import { useAuth } from '../lib/auth';
 
@@ -16,6 +17,7 @@ export function Layout() {
   const nav = [
     { to: '/', label: 'Dashboard', icon: LayoutDashboard },
     { to: '/vagas', label: isAdmin ? 'Vagas' : 'Minhas Vagas', icon: Briefcase },
+    { to: '/aprovacoes', label: 'Aprovações', icon: Inbox },
     ...(isAdmin ? [{ to: '/kanban', label: 'Kanban', icon: KanbanSquare }] : []),
     ...(isAdmin ? [{ to: '/admin', label: 'Administrativo', icon: Settings }] : []),
   ];

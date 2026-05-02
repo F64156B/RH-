@@ -3,6 +3,7 @@ import { Bell, Building2, Layers, MapPin, ShieldCheck, UserCog, Users, Workflow 
 import { PageHeader } from '../components/PageHeader';
 import { CrudTable } from '../components/CrudTable';
 import { Card, CardBody } from '../components/ui/Card';
+import { MatrizPage } from './Matriz';
 
 const tabs = [
   { to: 'marcas', label: 'Marcas', icon: Building2 },
@@ -10,7 +11,7 @@ const tabs = [
   { to: 'areas', label: 'Áreas', icon: Layers },
   { to: 'cargos', label: 'Cargos', icon: Workflow },
   { to: 'colaboradores', label: 'Colaboradores', icon: Users },
-  { to: 'matriz', label: 'Matriz de Aprovação', icon: ShieldCheck, soon: true },
+  { to: 'matriz', label: 'Matriz de Aprovação', icon: ShieldCheck },
   { to: 'notificacoes', label: 'Notificações', icon: Bell, soon: true },
   { to: 'permissoes', label: 'Permissões', icon: UserCog, soon: true },
 ];
@@ -138,7 +139,7 @@ export function AdminPage() {
                 />
               }
             />
-            <Route path="matriz" element={<Placeholder title="Matriz de Aprovação" />} />
+            <Route path="matriz" element={<MatrizPage />} />
             <Route path="notificacoes" element={<Placeholder title="Notificações" />} />
             <Route path="permissoes" element={<Placeholder title="Permissões" />} />
           </Routes>

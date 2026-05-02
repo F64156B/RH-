@@ -7,7 +7,8 @@ import { Button } from '../components/ui/Button';
 import { Field, Input, Select, Textarea } from '../components/ui/Input';
 import { add, listAll } from '../lib/firestore';
 import { generateJobScope } from '../lib/gemini';
-import type { Area, Cargo, Colaborador, Marca, Unidade, Vaga } from '../lib/types';
+import type { Area, Cargo, Colaborador, Marca, MatrizRegra, Unidade, Vaga } from '../lib/types';
+import { resolveApprover } from '../lib/approvals';
 import { useAuth } from '../lib/auth';
 
 const STEPS = [
@@ -26,13 +27,19 @@ export function NovaVagaPage() {
   const [areas, setAreas] = useState<(Area & { id: string })[]>([]);
   const [cargos, setCargos] = useState<(Cargo & { id: string })[]>([]);
   const [colaboradores, setColaboradores] = useState<(Colaborador & { id: string })[]>([]);
+  const [regras, setRegras] = useState<(MatrizRegra & { id: string })[]>([]);
 
   const [form, setForm] = useState({
+    marcaId: '',
     marca: '',
     marcaSigla: '',
+    unidadeId: '',
     unidade: '',
+    areaId: '',
     area: '',
+    cargoId: '',
     cargo: '',
+    cargoNivel: '',
     motivo: 'substituicao' as Vaga['motivo'],
     substituidoColaboradorId: '',
     metricaJustificativa: '',
@@ -43,18 +50,20 @@ export function NovaVagaPage() {
 
   useEffect(() => {
     (async () => {
-      const [m, u, a, c, k] = await Promise.all([
+      const [m, u, a, c, k, r] = await Promise.all([
         listAll<Marca>('marcas'),
         listAll<Unidade>('unidades'),
         listAll<Area>('areas'),
         listAll<Cargo>('cargos'),
         listAll<Colaborador>('colaboradores'),
+        listAll<MatrizRegra>('matriz_aprovacao'),
       ]);
       setMarcas(m);
       setUnidades(u);
       setAreas(a);
       setCargos(c);
       setColaboradores(k);
+      setRegras(r);
     })();
   }, []);
 
@@ -64,7 +73,19 @@ export function NovaVagaPage() {
 
   const onSelectMarca = (id: string) => {
     const m = marcas.find((x) => x.id === id);
-    setForm((f) => ({ ...f, marca: m?.nome ?? '', marcaSigla: m?.sigla ?? '' }));
+    setForm((f) => ({ ...f, marcaId: id, marca: m?.nome ?? '', marcaSigla: m?.sigla ?? '' }));
+  };
+  const onSelectUnidade = (id: string) => {
+    const u = unidades.find((x) => x.id === id);
+    setForm((f) => ({ ...f, unidadeId: id, unidade: u?.nome ?? '' }));
+  };
+  const onSelectArea = (id: string) => {
+    const a = areas.find((x) => x.id === id);
+    setForm((f) => ({ ...f, areaId: id, area: a?.nome ?? '' }));
+  };
+  const onSelectCargo = (id: string) => {
+    const c = cargos.find((x) => x.id === id);
+    setForm((f) => ({ ...f, cargoId: id, cargo: c?.nome ?? '', cargoNivel: c?.nivel ?? '' }));
   };
 
   const handleAutocomplete = async () => {
@@ -90,7 +111,15 @@ export function NovaVagaPage() {
     if (!user) return;
     setSaving(true);
     try {
+      const approver = resolveApprover(
+        { marcaId: form.marcaId, areaId: form.areaId, cargoId: form.cargoId, cargoNivel: form.cargoNivel },
+        regras,
+      );
       const payload: Vaga = {
+        marcaId: form.marcaId,
+        unidadeId: form.unidadeId,
+        areaId: form.areaId,
+        cargoId: form.cargoId,
         cargo: form.cargo,
         area: form.area,
         marca: form.marca,
@@ -101,6 +130,7 @@ export function NovaVagaPage() {
         metricaJustificativa: form.motivo === 'aumento_quadro' ? form.metricaJustificativa : undefined,
         descricao: form.descricao,
         status: 'pendente',
+        approverEmail: approver?.approverEmail,
         requesterEmail: user.email ?? '',
         requesterName: user.displayName ?? '',
         createdAt: Date.now(),
@@ -114,7 +144,7 @@ export function NovaVagaPage() {
   };
 
   const canNext = () => {
-    if (step === 0) return form.marca && form.unidade && form.area && form.cargo;
+    if (step === 0) return form.marcaId && form.unidadeId && form.areaId && form.cargoId;
     if (step === 1) {
       if (form.motivo === 'substituicao') return !!form.substituidoColaboradorId;
       if (form.motivo === 'aumento_quadro') return form.metricaJustificativa.trim().length > 5;
@@ -161,7 +191,7 @@ export function NovaVagaPage() {
           {step === 0 && (
             <div className="grid grid-cols-2 gap-4">
               <Field label="Marca" required>
-                <Select onChange={(e) => onSelectMarca(e.target.value)}>
+                <Select value={form.marcaId} onChange={(e) => onSelectMarca(e.target.value)}>
                   <option value="">Selecione…</option>
                   {marcas.map((m) => (
                     <option key={m.id} value={m.id}>{m.nome}</option>
@@ -169,26 +199,26 @@ export function NovaVagaPage() {
                 </Select>
               </Field>
               <Field label="Unidade" required>
-                <Select value={form.unidade} onChange={(e) => update('unidade', e.target.value)}>
+                <Select value={form.unidadeId} onChange={(e) => onSelectUnidade(e.target.value)}>
                   <option value="">Selecione…</option>
                   {unidades.map((u) => (
-                    <option key={u.id} value={u.nome}>{u.nome} {u.cidade ? `· ${u.cidade}` : ''}</option>
+                    <option key={u.id} value={u.id}>{u.nome} {u.cidade ? `· ${u.cidade}` : ''}</option>
                   ))}
                 </Select>
               </Field>
               <Field label="Área" required>
-                <Select value={form.area} onChange={(e) => update('area', e.target.value)}>
+                <Select value={form.areaId} onChange={(e) => onSelectArea(e.target.value)}>
                   <option value="">Selecione…</option>
                   {areas.map((a) => (
-                    <option key={a.id} value={a.nome}>{a.nome}</option>
+                    <option key={a.id} value={a.id}>{a.nome}</option>
                   ))}
                 </Select>
               </Field>
               <Field label="Cargo" required>
-                <Select value={form.cargo} onChange={(e) => update('cargo', e.target.value)}>
-                  <option value="">Selecione ou digite…</option>
+                <Select value={form.cargoId} onChange={(e) => onSelectCargo(e.target.value)}>
+                  <option value="">Selecione…</option>
                   {cargos.map((c) => (
-                    <option key={c.id} value={c.nome}>{c.nome}</option>
+                    <option key={c.id} value={c.id}>{c.nome}</option>
                   ))}
                 </Select>
               </Field>

@@ -88,6 +88,23 @@ export function VagaDetailPage() {
                 <div className="text-[11px] uppercase tracking-wider text-silver">Aberta em</div>
                 <div className="text-slateText tabular">{new Date(vaga.createdAt).toLocaleDateString('pt-BR')}</div>
               </div>
+              {vaga.approverEmail && (
+                <div>
+                  <div className="text-[11px] uppercase tracking-wider text-silver">Aprovador</div>
+                  <div className="text-slateText">{vaga.approverEmail}</div>
+                  {vaga.approvalDecidedAt && (
+                    <div className="text-[11px] text-silver tabular">
+                      Decidido em {new Date(vaga.approvalDecidedAt).toLocaleDateString('pt-BR')}
+                    </div>
+                  )}
+                </div>
+              )}
+              {vaga.approvalNote && (
+                <div>
+                  <div className="text-[11px] uppercase tracking-wider text-silver">Nota da decisão</div>
+                  <div className="text-slateText">{vaga.approvalNote}</div>
+                </div>
+              )}
               {vaga.metricaJustificativa && (
                 <div>
                   <div className="text-[11px] uppercase tracking-wider text-silver">Justificativa</div>
