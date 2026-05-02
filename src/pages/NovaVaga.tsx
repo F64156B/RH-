@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, Check, Sparkles } from 'lucide-react';
 import { PageHeader } from '../components/PageHeader';
+import { Breadcrumbs } from '../components/Breadcrumbs';
 import { Card, CardBody } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Field, Input, Select, Textarea } from '../components/ui/Input';
@@ -165,6 +166,7 @@ export function NovaVagaPage() {
 
   return (
     <div>
+      <Breadcrumbs items={[{ label: 'Vagas', to: '/vagas' }, { label: 'Novo pedido' }]} />
       <PageHeader title="Novo pedido de vaga" subtitle="Preencha as etapas para abrir a requisição." />
 
       <Card>

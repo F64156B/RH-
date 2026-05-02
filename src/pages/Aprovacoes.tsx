@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Check, Inbox, X } from 'lucide-react';
 import { PageHeader } from '../components/PageHeader';
+import { Breadcrumbs } from '../components/Breadcrumbs';
 import { Card, CardBody } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Badge } from '../components/ui/Badge';
@@ -43,6 +44,7 @@ export function AprovacoesPage() {
 
   return (
     <div>
+      <Breadcrumbs items={[{ label: 'Aprovações' }]} />
       <PageHeader
         title="Aprovações"
         subtitle={isAdmin ? 'Todas as requisições pendentes do grupo.' : 'Vagas aguardando sua aprovação.'}
